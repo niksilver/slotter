@@ -3,8 +3,10 @@
 --
 -- Slot sounds together
 
-sample371 = {
-    file = '/home/we/dust/audio/tape/carnage1.wav',
+Sample = include 'lib/Sample'
+
+sample371 = Sample:new {
+    filename = '/home/we/dust/audio/tape/carnage1.wav',
     level = 1,
     rate = 1,
     start = 0,
@@ -28,7 +30,7 @@ end
 function init_chain(voice, chain)
     local sample = samples[chain[1]]
     softcut.buffer_read_mono(
-        sample.file,
+        sample.filename,
         sample.start,    -- File start
         0,    -- Buffer start
         sample.duration,    -- Sample duration
