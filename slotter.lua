@@ -3,10 +3,16 @@
 --
 -- Slot sounds together
 
+fileselect = require 'fileselect'
+
 Sample = include 'lib/Sample'
+
+-- Start of our data structures
 
 sample371 = Sample:new {
     filename = '/home/we/dust/audio/tape/carnage1.wav',
+    bank = 'A',
+    slot = 1,
     level = 1,
     rate = 1,
     start = 0,
@@ -26,7 +32,9 @@ PAGES = {
 app = {
     page = 1,    -- What page (screen) we're on
     k1_down = false,    -- If K1 (shift) is down
-    playing = 0,
+    playing = 0,    -- Are we playing? 0 or 1
+    current_file_path = nil,
+    current_file_name = nil,
 }
 
 function init()
@@ -70,12 +78,42 @@ function key(n, z)
 
         app.k1_down = (z == 1)
 
+    elseif page_name() == 'CAPTURE' then
+        key_capture(n, z)
     elseif page_name() == 'PLAY' then
         key_play(n, z)
     end
 end
 
--- Key capture on the play page.
+--- Key response on the capture page.
+--
+function key_capture(n, z)
+    if n == 3 and z == 1 then
+        -- Capture file selection
+
+        fileselect.enter(_path.audio, capture_file)
+    end
+end
+
+--- Capture a file for a bank. Finishes with a return to our script with
+-- a redraw().
+-- This is the callback described at
+-- https://monome.org/docs/norns/reference/lib/fileselect
+--
+function capture_file(file_path)
+    if file_path == 'cancel' then
+        return nil, nil
+    end
+
+    local split_at = string.match(file_path, "^.*()/")
+
+    app.current_file_path = string.sub(file_path, 1, split_at)
+    app.current_file_name = string.sub(file_path, split_at + 1)
+
+    redraw()
+end
+
+--- Key response on the play page.
 --
 function key_play(n, z)
     if n == 2 and z == 1 then
@@ -139,8 +177,13 @@ end
 --
 function redraw_capture()
     screen.level(4)
-    screen.move(0,8)
-    screen.text('Capture page')
+    screen.move(1,8)
+    screen.text('Capture: K3 to select')
+
+    screen.move(1, 24)
+    screen.text('Path: ' .. tostring(app.current_file_path))
+    screen.move(1, 32)
+    screen.text('Name: ' .. tostring(app.current_file_name))
 end
 
 --- Redraw the split page.

@@ -15,7 +15,8 @@ Editing samples
 - Split a sample in one slot into up to 16 slots.
 - Trim a sample
 
-Recording
+Capturing
+- Load an audio file into a slot
 - Record audio into a slot
 - Record the sound of subsamples played from MIDI pads.
 - Record synthesised sounds from MIDI keys.
