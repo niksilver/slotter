@@ -13,22 +13,25 @@ sample371 = Sample:new {
     duration = 10,
 }
 
-samples = {
-    A = sample371,
+-- The pages we have
+
+PAGES = {
+    RECORD = 'RECORD',
+    SPLIT = 'SPLIT',
 }
 
+-- State of the app; this isn't saved
+
 app = {
+    page = PAGES.RECORD,
     playing = 0,
 }
 
-chain1 = { 'A' }
-
 function init()
-    init_chain(1, chain1)
+    load_sample(1, sample371)
 end
 
-function init_chain(voice, chain)
-    local sample = samples[chain[1]]
+function load_sample(voice, sample)
     softcut.buffer_read_mono(
         sample.filename,
         sample.start,    -- File start
