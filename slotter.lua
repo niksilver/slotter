@@ -16,8 +16,9 @@ sample371 = Sample:new {
 -- The pages we have
 
 PAGES = {
-    'RECORD',
+    'CAPTURE',
     'SPLIT',
+    'PLAY',    -- Temporary
 }
 
 -- State of the app; this isn't saved
@@ -57,14 +58,29 @@ function load_sample(voice, sample)
     redraw()
 end
 
+--- Get the name of the current page.
+--
+function page_name()
+    return PAGES[app.page]
+end
+
 function key(n, z)
     if n == 1 then
         -- Capture K1 shift
 
         app.k1_down = (z == 1)
 
-    elseif n == 2 and z == 1 then
+    elseif page_name() == 'PLAY' then
+        key_play(n, z)
+    end
+end
+
+-- Key capture on the play page.
+--
+function key_play(n, z)
+    if n == 2 and z == 1 then
         -- Capture play/stop
+
         app.playing = 1 - app.playing
         softcut.play(1, app.playing)
         redraw()
@@ -83,16 +99,24 @@ end
 function redraw()
     screen.clear()
 
-    screen.level(4)
-    screen.move(0,8)
-    screen.text(app.playing == 1 and 'Playing' or 'Stopped')
+    if page_name() == 'CAPTURE' then
+        redraw_capture()
+    elseif page_name() == 'SPLIT' then
+        redraw_split()
+    elseif page_name() == 'PLAY' then
+        redraw_play()
+    else
+        screen.level(4)
+        screen.move(0,8)
+        screen.text('Unknown page :-(')
+    end
 
     draw_page_indicator()
 
     screen.update()
 end
 
---- Draw the thing which shows what page we're on
+--- Draw the thing which shows what page we're on.
 --
 function draw_page_indicator()
     local margin = 16
@@ -104,9 +128,34 @@ function draw_page_indicator()
     screen.line_width(1)
 
     for page = 1, #PAGES do
-        screen.level(page == app.page and 15 or 4)
+        screen.level(page == app.page and 8 or 2)
         screen.move(128, margin + (page-1)*padding + (page-1)*length)
         screen.line_rel(0, length)
         screen.stroke()
     end
 end
+
+--- Redraw the capture (load/record) page.
+--
+function redraw_capture()
+    screen.level(4)
+    screen.move(0,8)
+    screen.text('Capture page')
+end
+
+--- Redraw the split page.
+--
+function redraw_split()
+    screen.level(4)
+    screen.move(0,8)
+    screen.text('Split page')
+end
+
+--- Redraw the play page.
+--
+function redraw_play()
+    screen.level(4)
+    screen.move(0,8)
+    screen.text(app.playing == 1 and 'Playing' or 'Stopped')
+end
+

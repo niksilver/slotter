@@ -6,10 +6,9 @@
 # Task list
 
 Pages
-- Move between pages
-- Page: Record
-- Page: Manage slots
+- Page: Capture (load or record)
 - Page: Split sample
+- Page: Manage slots
 - Page: Arrange chains
 
 Editing samples
@@ -48,3 +47,8 @@ Managing banks and samples
 Saving and loading
 - Save all the samples and chains, includuing audio.
 - Load all the samples and chains, including audio.
+
+# Done
+
+Pages
+- Move between pages
