@@ -16,14 +16,14 @@ sample371 = Sample:new {
 -- The pages we have
 
 PAGES = {
-    RECORD = 'RECORD',
-    SPLIT = 'SPLIT',
+    'RECORD',
+    'SPLIT',
 }
 
 -- State of the app; this isn't saved
 
 app = {
-    page = PAGES.RECORD,
+    page = 1,
     playing = 0,
 }
 
@@ -62,6 +62,7 @@ function key(n, z)
         softcut.play(1, app.playing)
         redraw()
     end
+    print("key "..n..", "..z)
 end
 
 function redraw()
@@ -70,5 +71,26 @@ function redraw()
     screen.move(0,8)
     screen.text(app.playing == 1 and 'Playing' or 'Stopped')
 
+    draw_page_indicator()
+
     screen.update()
+end
+
+--- Draw the thing which shows what page we're on
+--
+function draw_page_indicator()
+    local margin = 16
+    local padding = 4
+
+    local total_padding = (#PAGES - 1) * padding
+    local length = (64 - total_padding - 2 * margin) / #PAGES
+
+    screen.line_width(1)
+
+    for page = 1, #PAGES do
+        screen.level(page == app.page and 15 or 4)
+        screen.move(128, margin + (page-1)*padding + (page-1)*length)
+        screen.line_rel(0, length)
+        screen.stroke()
+    end
 end
