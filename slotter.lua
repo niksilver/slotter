@@ -33,8 +33,13 @@ app = {
     page = 1,    -- What page (screen) we're on
     k1_down = false,    -- If K1 (shift) is down
     playing = 0,    -- Are we playing? 0 or 1
-    current_file_path = nil,
-    current_file_name = nil,
+    capture = {    -- Status of the capture page
+        file_path = nil,
+        file_name = nil,
+        bank = 'A',
+        slot = 1,
+        selected = 1,     -- 1 = bank, 2 = slot, 3 = load
+    },
 }
 
 function init()
@@ -66,6 +71,8 @@ function load_sample(voice, sample)
     redraw()
 end
 
+------------------ Top level actions -------------------------
+
 --- Get the name of the current page.
 --
 function page_name()
@@ -85,52 +92,16 @@ function key(n, z)
     end
 end
 
---- Key response on the capture page.
---
-function key_capture(n, z)
-    if n == 3 and z == 1 then
-        -- Capture file selection
-
-        fileselect.enter(_path.audio, capture_file)
-    end
-end
-
---- Capture a file for a bank. Finishes with a return to our script with
--- a redraw().
--- This is the callback described at
--- https://monome.org/docs/norns/reference/lib/fileselect
---
-function capture_file(file_path)
-    if file_path == 'cancel' then
-        return nil, nil
-    end
-
-    local split_at = string.match(file_path, "^.*()/")
-
-    app.current_file_path = string.sub(file_path, 1, split_at)
-    app.current_file_name = string.sub(file_path, split_at + 1)
-
-    redraw()
-end
-
---- Key response on the play page.
---
-function key_play(n, z)
-    if n == 2 and z == 1 then
-        -- Capture play/stop
-
-        app.playing = 1 - app.playing
-        softcut.play(1, app.playing)
-        redraw()
-    end
-end
-
 function enc(n, d)
     -- Global encoder rules
 
     if n == 1 and app.k1_down then
         app.page = util.clamp(app.page + d, 1, #PAGES)
         redraw()
+    end
+
+    if page_name() == 'CAPTURE' then
+        enc_capture(n, d)
     end
 end
 
@@ -173,17 +144,66 @@ function draw_page_indicator()
     end
 end
 
+------------------ Actions on the capture page -------------------------
+
+--- Key response on the capture page.
+--
+function key_capture(n, z)
+    if n == 3 and z == 1 and app.capture.selected == 3 then
+        -- Capture file selection
+
+        fileselect.enter(_path.audio, capture_file)
+    end
+end
+
+-- Encoder response on the capture page.
+--
+function enc_capture(n, d)
+    if n == 2 then
+        app.capture.selected =
+            util.clamp(app.capture.selected + d, 1, 3)
+        redraw()
+    end
+end
+
+--- Capture a file for a bank. Finishes with a return to our script with
+-- a redraw().
+-- This is the callback described at
+-- https://monome.org/docs/norns/reference/lib/fileselect
+--
+function capture_file(file_path)
+    if file_path == 'cancel' then
+        return nil, nil
+    end
+
+    local split_at = string.match(file_path, "^.*()/")
+
+    app.capture.sub(file_path, 1, split_at)
+    app.capture.sub(file_path, split_at + 1)
+
+    redraw()
+end
+
 --- Redraw the capture (load/record) page.
 --
 function redraw_capture()
     screen.level(4)
     screen.move(1,8)
-    screen.text('Capture: K3 to select')
+    screen.text('Capture to ')
+    screen.level(app.capture.selected == 1 and 15 or 4)
+    screen.text(app.capture.bank)
+    screen.level(app.capture.selected == 2 and 15 or 4)
+    screen.text(app.capture.slot)
 
+    screen.level(4)
     screen.move(1, 24)
-    screen.text('Path: ' .. tostring(app.current_file_path))
+    screen.text('Path: ' .. tostring(app.capture.file_path))
     screen.move(1, 32)
-    screen.text('Name: ' .. tostring(app.current_file_name))
+    screen.text('Name: ' .. tostring(app.capture.file_name))
+
+    screen.move(1, 48)
+    screen.level(app.capture.selected == 3 and 15 or 4)
+    screen.text('Load >')
 end
 
 --- Redraw the split page.
@@ -200,5 +220,19 @@ function redraw_play()
     screen.level(4)
     screen.move(0,8)
     screen.text(app.playing == 1 and 'Playing' or 'Stopped')
+end
+
+------------------ Actions on the play page -------------------------
+
+--- Key response on the play page.
+--
+function key_play(n, z)
+    if n == 2 and z == 1 then
+        -- Capture play/stop
+
+        app.playing = 1 - app.playing
+        softcut.play(1, app.playing)
+        redraw()
+    end
 end
 
