@@ -23,7 +23,8 @@ PAGES = {
 -- State of the app; this isn't saved
 
 app = {
-    page = 1,
+    page = 1,    -- What page (screen) we're on
+    k1_down = false,    -- If K1 (shift) is down
     playing = 0,
 }
 
@@ -57,17 +58,32 @@ function load_sample(voice, sample)
 end
 
 function key(n, z)
-    if n == 2 and z == 1 then
+    if n == 1 then
+        -- Capture K1 shift
+
+        app.k1_down = (z == 1)
+
+    elseif n == 2 and z == 1 then
+        -- Capture play/stop
         app.playing = 1 - app.playing
         softcut.play(1, app.playing)
         redraw()
     end
-    print("key "..n..", "..z)
+end
+
+function enc(n, d)
+    -- Global encoder rules
+
+    if n == 1 and app.k1_down then
+        app.page = util.clamp(app.page + d, 1, #PAGES)
+        redraw()
+    end
 end
 
 function redraw()
     screen.clear()
 
+    screen.level(4)
     screen.move(0,8)
     screen.text(app.playing == 1 and 'Playing' or 'Stopped')
 
