@@ -6,12 +6,15 @@
 fileselect = require 'fileselect'
 
 Sample = include 'lib/Sample'
+Banks = include 'lib/Banks'
+
+banks = Banks:new()
 
 -- Start of our data structures
 
 sample371 = Sample:new {
     filename = '/home/we/dust/audio/tape/carnage1.wav',
-    bank = 'A',
+    bank = banks[1],
     slot = 1,
     level = 1,
     rate = 1,
@@ -36,7 +39,7 @@ app = {
     capture = {    -- Status of the capture page
         file_path = nil,
         file_name = nil,
-        bank = 'A',
+        bank = banks[1],
         slot = 1,
         selected = 1,     -- 1 = bank, 2 = slot, 3 = load
     },
@@ -160,8 +163,15 @@ end
 --
 function enc_capture(n, d)
     if n == 2 then
+        -- E2 selects a different element of the page
+
         app.capture.selected =
             util.clamp(app.capture.selected + d, 1, 3)
+        redraw()
+    elseif n == 3 and app.capture.selected == 1 then
+        -- E3 changes the bank
+
+        app.capture.bank = banks:inc(app.capture.bank, d)
         redraw()
     end
 end
@@ -191,7 +201,7 @@ function redraw_capture()
     screen.move(1,8)
     screen.text('Capture to ')
     screen.level(app.capture.selected == 1 and 15 or 4)
-    screen.text(app.capture.bank)
+    screen.text(app.capture.bank:name())
     screen.level(app.capture.selected == 2 and 15 or 4)
     screen.text(app.capture.slot)
 
