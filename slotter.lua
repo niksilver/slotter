@@ -195,8 +195,8 @@ function capture_file(file_path)
 
     local split_at = string.match(file_path, "^.*()/")
 
-    app.capture.sub(file_path, 1, split_at)
-    app.capture.sub(file_path, split_at + 1)
+    app.capture.file_path = string.sub(file_path, 1, split_at)
+    app.capture.file_name = string.sub(file_path, split_at + 1)
 
     redraw()
 end
