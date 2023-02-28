@@ -8,6 +8,7 @@ Bank = {}
 function Bank:new(name)
     local obj = {
         bname = name,
+        slots = {}
     }
     self.__index = self
     return setmetatable(obj, self)
@@ -18,5 +19,10 @@ end
 function Bank:name()
     return self.bname
 end
+
+--- Array of 16 slots in the bank. Each element will be nil
+-- or a Sample.
+--
+Bank.slots = {}
 
 return Bank

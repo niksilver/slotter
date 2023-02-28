@@ -193,6 +193,11 @@ function capture_file(file_path)
         return nil, nil
     end
 
+    app.capture.bank.slots[app.capture.slot] =
+        Sample:new {
+            filename = file_path
+        }
+
     local split_at = string.match(file_path, "^.*()/")
 
     app.capture.file_path = string.sub(file_path, 1, split_at)
