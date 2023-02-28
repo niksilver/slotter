@@ -34,7 +34,7 @@ function Banks:inc(bank, d)
             return self[i2]
         end
     end
-    error("Could not find given bank with name " .. tostring(bank:name()))
+    error("Could not find given bank: " .. tostring(bank))
 end
 
 return Banks
