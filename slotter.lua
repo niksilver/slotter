@@ -14,8 +14,6 @@ banks = Banks:new()
 
 sample371 = Sample:new {
     filename = '/home/we/dust/audio/tape/carnage1.wav',
-    bank = banks[1],
-    slot = 1,
     level = 1,
     rate = 1,
     start = 0,
@@ -46,7 +44,6 @@ app = {
 }
 
 function init()
-    load_sample(1, sample371)
 end
 
 function load_sample(voice, sample)
@@ -219,11 +216,10 @@ function redraw_capture()
 
     screen.level(4)
     screen.move(1, 24)
-    screen.text('Path: ' .. tostring(app.capture.file_path))
-    screen.move(1, 32)
-    screen.text('Name: ' .. tostring(app.capture.file_name))
+    local sample = app.capture.bank.slots[app.capture.slot]
+    screen.text(sample and sample.filename or 'Empty slot')
 
-    screen.move(1, 48)
+    screen.move(1, 40)
     screen.level(app.capture.selected == 3 and 15 or 4)
     screen.text('Load >')
 end

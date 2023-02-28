@@ -8,9 +8,7 @@ Sample = {}
 --
 function Sample:new(props)
     local obj = {
-        filename = '/home/we/dust/audio/tape/carnage1.wav',
-        bank = props.bank or 'Z',
-        slot = props.slot or 16,
+        filename = props.filename,
         level = props.level or 1.0,
         rate = props.rate or 1.0,
         start = props.start or 0,
@@ -19,5 +17,9 @@ function Sample:new(props)
     self.__index = self
     return setmetatable(obj, self)
 end
+
+--- Filename on which the sample is based.
+--
+Sample.filename = ''
 
 return Sample
