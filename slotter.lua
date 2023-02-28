@@ -168,10 +168,17 @@ function enc_capture(n, d)
         app.capture.selected =
             util.clamp(app.capture.selected + d, 1, 3)
         redraw()
+
     elseif n == 3 and app.capture.selected == 1 then
         -- E3 changes the bank
 
         app.capture.bank = banks:inc(app.capture.bank, d)
+        redraw()
+
+    elseif n == 3 and app.capture.selected == 2 then
+        -- E3 changes the slot
+
+        app.capture.slot = util.clamp(app.capture.slot + d, 1, 16)
         redraw()
     end
 end
