@@ -39,6 +39,7 @@ app = {
         file_name = nil,
         bank = banks[1],
         slot = 1,
+        loaded_sample = nil,    -- The sample loaded
         selected = 1,     -- 1 = bank, 2 = slot, 3 = load
     },
 }
@@ -65,8 +66,6 @@ function load_sample(voice, sample)
     softcut.loop_end(voice, sample.start + sample.duration)
     softcut.position(voice, sample.start)
     softcut.rate(voice, sample.rate)
-
-    softcut.play(voice, app.playing)
 
     redraw()
 end
@@ -149,7 +148,22 @@ end
 --- Key response on the capture page.
 --
 function key_capture(n, z)
-    if n == 3 and z == 1 and app.capture.selected == 3 then
+    local bank_sample = app.capture.bank.slots[app.capture.slot]
+    if n == 2 and z == 1 and bank_sample then
+        -- Play on the capture page
+
+        -- Load the sample if needed
+        if loaded_sample ~= bank_sample then
+            load_sample(1, bank_sample)
+        end
+
+        -- Play/stop
+
+        app.playing = 1 - app.playing
+        softcut.play(1, app.playing)
+        redraw()
+
+    elseif n == 3 and z == 1 and app.capture.selected == 3 then
         -- Capture file selection
 
         fileselect.enter(_path.audio, capture_file)
@@ -222,6 +236,13 @@ function redraw_capture()
     screen.move(1, 40)
     screen.level(app.capture.selected == 3 and 15 or 4)
     screen.text('Load >')
+
+    screen.move(1, 56)
+    local bank_sample = app.capture.bank.slots[app.capture.slot]
+    if bank_sample then
+        screen.level(4)
+        screen.text('K2 play/stop')
+    end
 end
 
 --- Redraw the split page.
@@ -246,7 +267,7 @@ end
 --
 function key_play(n, z)
     if n == 2 and z == 1 then
-        -- Capture play/stop
+        -- Play/stop
 
         app.playing = 1 - app.playing
         softcut.play(1, app.playing)
