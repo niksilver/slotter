@@ -5,6 +5,12 @@
 
 # Task list
 
+Finding space in a buffer
+- Learn to evict a sample.
+- Evict multiple samples if necessary.
+- Don't evict a sample that's playing.
+- Search for space over two buffers.
+
 Pages
 - Page: Capture (load or record)
 - Page: Split sample
