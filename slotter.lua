@@ -12,14 +12,6 @@ banks = Banks:new()
 
 -- Start of our data structures
 
-sample371 = Sample:new {
-    filename = '/home/we/dust/audio/tape/carnage1.wav',
-    level = 1,
-    rate = 1,
-    start = 0,
-    duration = 10,
-}
-
 -- The pages we have
 
 PAGES = {

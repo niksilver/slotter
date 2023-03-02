@@ -52,8 +52,6 @@ function SampleManager:load(file)
 
     return Sample:new {
         filename = file,
-        level = 1.0,
-        rate = 1.0,
         start = 0,
         duration = duration,
     }

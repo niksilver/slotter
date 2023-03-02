@@ -9,8 +9,6 @@ Sample = {}
 function Sample:new(props)
     local obj = {
         filename = props.filename,
-        level = props.level or 1.0,
-        rate = props.rate or 1.0,
         start = props.start or 0,
         duration = props.duration or 1.0,
     }
