@@ -24,6 +24,7 @@ function SampleManager:new(buffer_length)
 end
 
 --- Load a file into a buffer, return a sample.
+-- The sample will be cut down if the file is too long.
 -- @tparam string file    Full path name of the file.
 -- @treturn Sample    The Sample object loaded, or nil if there was a problem.
 --
@@ -33,6 +34,10 @@ function SampleManager:load(file)
     local duration = 0
     if frames > 0 and samplerate > 0 then
         duration = frames / samplerate
+        duration = math.min(self.blength, duration)
+    else
+        -- Problem reading file data
+        return nil
     end
 
     softcut.buffer_read_mono(file,
