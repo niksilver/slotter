@@ -34,7 +34,6 @@ function SampleManager:load(file)
     local duration = 0
     if frames > 0 and samplerate > 0 then
         duration = frames / samplerate
-        duration = math.min(self.blength, duration)
     else
         -- Problem reading file data
         return nil
@@ -50,11 +49,65 @@ function SampleManager:load(file)
         1.0    -- Level of new material
     )
 
-    return Sample:new {
+    local space = self:find_space(duration)
+    local sample = Sample:new {
         filename = file,
-        start = 0,
-        duration = duration,
+        start = space.start,
+        duration = space.duration,
     }
+    table.insert(self.buffers[space.ch], space.idx, sample)
+
+    return sample
+end
+
+--- Find some space in a buffer for a sample.
+-- It will require a 0.25 second gap at either end.
+-- @tparam dur    Number of seconds required.
+-- @treturn table    A table of keys start, duration, ch, idx.
+--     start: The start position of the space (after the front gap),
+--         or nil if none found.
+--     duration: The duration of the space available (which will be the full
+--         duration unless the buffer is too short).
+--     ch: The channel (buffer) where the space is found.
+--     idx: Which index the buffer the sample will go.
+--
+function SampleManager:find_space(dur)
+    local ch = 1
+
+    if #(self.buffers[ch]) == 0 then
+        return {
+            start = 0.25,
+            duration = math.min(dur, self.blength-0.5),
+            ch = ch,
+            idx = 1,
+        }
+    end
+
+    local last = 0
+    for i, samp in ipairs(self.buffers[ch]) do
+        local free = samp.start - last
+        if free >= dur + 0.5 then
+            return {
+                start = last + 0.25,
+                duration = dur,
+                ch = ch,
+                idx = i
+            }
+        end
+        last = samp.start + samp.duration + 0.25
+    end
+    -- We've reached the end of our samples. Is there more space at the end?
+    local free = self.blength - last
+    if free >= dur + 0.5 then
+        return {
+            start = last + 0.25,
+            duration = dur,
+            ch = ch,
+            idx = #(self.buffers[ch]) + 1
+        }
+    end
+
+    return { start = nil, duration = nil, ch = nil, idx = nil }
 end
 
 return SampleManager

@@ -3,7 +3,8 @@
 Sample = {}
 
 --- Make a new sample.
--- @tparam table props    Table of properties.
+-- @tparam table props    Table of properties, all required:
+--     filename, start, duration.
 -- @treturn Sample    A new Sample object.
 --
 function Sample:new(props)
@@ -19,5 +20,13 @@ end
 --- Filename on which the sample is based.
 --
 Sample.filename = ''
+
+--- Start location in the buffer (seconds from zero) or nil if not loaded.
+--
+Sample.start = 0
+
+--- Duration of the sample (seconds).
+--
+Sample.duration = 0
 
 return Sample
